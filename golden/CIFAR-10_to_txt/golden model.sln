@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "golden model", "golden model\golden model.pyproj", "{0B0C4E02-DA8C-4A44-A7C8-8E71A339A3C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B0C4E02-DA8C-4A44-A7C8-8E71A339A3C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0C4E02-DA8C-4A44-A7C8-8E71A339A3C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {527C6E43-5CA4-4D2D-B187-DD8996BE5DD5}
+	EndGlobalSection
+EndGlobal

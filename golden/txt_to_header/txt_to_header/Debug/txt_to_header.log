@@ -1,0 +1,6 @@
+﻿  txt_to_header.cpp
+C:\Users\andy3\Documents\ee6470\EE6470\Final\golden\txt_to_header\txt_to_header\txt_to_header.cpp(157,27): warning C4018: '<': signed/unsigned 不相符
+C:\Users\andy3\Documents\ee6470\EE6470\Final\golden\txt_to_header\txt_to_header\txt_to_header.cpp(207,27): warning C4018: '<': signed/unsigned 不相符
+C:\Users\andy3\Documents\ee6470\EE6470\Final\golden\txt_to_header\txt_to_header\txt_to_header.cpp(251,27): warning C4018: '<': signed/unsigned 不相符
+C:\Users\andy3\Documents\ee6470\EE6470\Final\golden\txt_to_header\txt_to_header\txt_to_header.cpp(301,27): warning C4018: '<': signed/unsigned 不相符
+  txt_to_header.vcxproj -> C:\Users\andy3\Documents\ee6470\EE6470\Final\golden\txt_to_header\Debug\txt_to_header.exe
