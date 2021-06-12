@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "istream": "c",
+        "memory": "c",
+        "ostream": "c",
+        "streambuf": "c",
+        "system_error": "c",
+        "xstring": "c"
+    }
+}

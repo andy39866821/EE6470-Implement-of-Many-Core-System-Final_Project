@@ -118,7 +118,7 @@ def RELU(activation, M):
 
 def DNN(input, bits, index):
     # input quantization
-    input_quantized = (input * input_scale).round().astype(int)
+    input_quantized = (input * input_scale).astype(int)
     overflow = False
     
     filename = "input_quantized_" + str(index) + ".txt"
@@ -141,7 +141,7 @@ def DNN(input, bits, index):
     np.savetxt('dataset/' + filename, layer1_activation.astype(int).reshape(-1), fmt='%d')
     
 
-    layer1_activation_quantized = (layer1_activation / conv1_output_scale).round().astype(int)
+    layer1_activation_quantized = (layer1_activation / conv1_output_scale).astype(int)
 
     filename = "conv1_quantized_result_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, layer1_activation_quantized.astype(int).reshape(-1), fmt='%d')
@@ -162,7 +162,7 @@ def DNN(input, bits, index):
     filename = "conv2_max_pool_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, layer2_activation.astype(int).reshape(-1), fmt='%d')
 
-    layer2_activation_quantized = (layer2_activation / conv2_output_scale).round().astype(int)
+    layer2_activation_quantized = (layer2_activation / conv2_output_scale).astype(int)
   
     filename = "conv2_quantized_result_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, layer2_activation_quantized.astype(int).reshape(-1), fmt='%d')
@@ -185,7 +185,7 @@ def DNN(input, bits, index):
     filename = "fc1_activation_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc1_activation.astype(int).reshape(-1), fmt='%d')
 
-    fc1_activation_quantized = (fc1_activation / fc1_output_scale).round().astype(int)
+    fc1_activation_quantized = (fc1_activation / fc1_output_scale).astype(int)
 
     filename = "fc1_quantized_result_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc1_activation_quantized.astype(int).reshape(-1), fmt='%d')
@@ -199,7 +199,7 @@ def DNN(input, bits, index):
     RELU(fc2_activation, 84)   
     filename = "fc2_activation_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc2_activation.astype(int).reshape(-1), fmt='%d')
-    fc2_activation_quantized = (fc2_activation / fc2_output_scale).round().astype(int)
+    fc2_activation_quantized = (fc2_activation / fc2_output_scale).astype(int)
     
     filename = "fc2_quantized_result_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc2_activation_quantized.astype(int).reshape(-1), fmt='%d')
@@ -224,7 +224,7 @@ def DNN(input, bits, index):
     filename = "fc3_bias_addition_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc3_activation.astype(int).reshape(-1), fmt='%d')
 
-    fc3_activation_quantized = (fc3_activation / fc3_output_scale).round().astype(int)
+    fc3_activation_quantized = (fc3_activation / fc3_output_scale).astype(int)
     
     filename = "fc3_quantized_result_" + str(index) + ".txt"
     np.savetxt('dataset/' + filename, fc3_activation_quantized.astype(int).reshape(-1), fmt='%d')
