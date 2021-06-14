@@ -21,6 +21,9 @@
 
 #include "Convolution_1.h"
 #include "Convolution_2.h"
+#include "FC_1.h"
+#include "FC_2.h"
+#include "FC_3.h"
 
 #include "util/options.h"
 #include "platform/common/options.h"
@@ -87,6 +90,27 @@ public:
 	addr_t conv2_core1_size = 0x00100000;
 	addr_t conv2_core0_end_addr = conv2_core0_start_addr + conv2_core0_size - 1;
 	addr_t conv2_core1_end_addr = conv2_core1_start_addr + conv2_core1_size - 1;
+	//FC1 memory address
+	addr_t fc1_core0_start_addr = 0x73400000;
+	addr_t fc1_core1_start_addr = 0x73500000;
+	addr_t fc1_core0_size = 0x00100000;
+	addr_t fc1_core1_size = 0x00100000;
+	addr_t fc1_core0_end_addr = fc1_core0_start_addr + fc1_core0_size - 1;
+	addr_t fc1_core1_end_addr = fc1_core1_start_addr + fc1_core1_size - 1;
+	//FC2 memory address
+	addr_t fc2_core0_start_addr = 0x73600000;
+	addr_t fc2_core1_start_addr = 0x73700000;
+	addr_t fc2_core0_size = 0x00100000;
+	addr_t fc2_core1_size = 0x00100000;
+	addr_t fc2_core0_end_addr = fc2_core0_start_addr + fc2_core0_size - 1;
+	addr_t fc2_core1_end_addr = fc2_core1_start_addr + fc2_core1_size - 1;
+	//FC3 memory address
+	addr_t fc3_core0_start_addr = 0x73800000;
+	addr_t fc3_core1_start_addr = 0x73900000;
+	addr_t fc3_core0_size = 0x00100000;
+	addr_t fc3_core1_size = 0x00100000;
+	addr_t fc3_core0_end_addr = fc3_core0_start_addr + fc3_core0_size - 1;
+	addr_t fc3_core1_end_addr = fc3_core1_start_addr + fc3_core1_size - 1;
 
 
 	bool use_E_base_isa = false;
@@ -135,7 +159,7 @@ int sc_main(int argc, char **argv) {
 	SimpleMemory mem("SimpleMemory", opt.mem_size);
 	SimpleTerminal term("SimpleTerminal");
 	ELFLoader loader(opt.input_program.c_str());
-	SimpleBus<5, 16> bus("SimpleBus");
+	SimpleBus<5, 22> bus("SimpleBus");
 	CombinedMemoryInterface core0_mem_if("MemoryInterface0", core0);
 	CombinedMemoryInterface core1_mem_if("MemoryInterface1", core1);
 	SyscallHandler sys("SyscallHandler");
@@ -156,6 +180,13 @@ int sc_main(int argc, char **argv) {
 	Convolution_1 conv1_core1("conv1_core1");
 	Convolution_2 conv2_core0("conv2_core0");
 	Convolution_2 conv2_core1("conv2_core1");
+	FC_1 fc1_core0("fc1_core0");
+	FC_1 fc1_core1("fc1_core1");
+	FC_2 fc2_core0("fc2_core0");
+	FC_2 fc2_core1("fc2_core1");
+	FC_3 fc3_core0("fc3_core0");
+	FC_3 fc3_core1("fc3_core1");
+	
 
 	std::shared_ptr<BusLock> bus_lock = std::make_shared<BusLock>();
 	core0_mem_if.bus_lock = bus_lock;
@@ -215,6 +246,12 @@ int sc_main(int argc, char **argv) {
 	bus.ports[13] = new PortMapping(opt.conv1_core1_start_addr, opt.conv1_core1_end_addr);
 	bus.ports[14] = new PortMapping(opt.conv2_core0_start_addr, opt.conv2_core0_end_addr);
 	bus.ports[15] = new PortMapping(opt.conv2_core1_start_addr, opt.conv2_core1_end_addr);
+	bus.ports[16] = new PortMapping(opt.fc1_core0_start_addr, opt.fc1_core0_end_addr);
+	bus.ports[17] = new PortMapping(opt.fc1_core1_start_addr, opt.fc1_core1_end_addr);
+	bus.ports[18] = new PortMapping(opt.fc2_core0_start_addr, opt.fc2_core0_end_addr);
+	bus.ports[19] = new PortMapping(opt.fc2_core1_start_addr, opt.fc2_core1_end_addr);
+	bus.ports[20] = new PortMapping(opt.fc3_core0_start_addr, opt.fc3_core0_end_addr);
+	bus.ports[21] = new PortMapping(opt.fc3_core1_start_addr, opt.fc3_core1_end_addr);
 	
 	// connect TLM sockets
 	core0_mem_if.isock.bind(bus.tsocks[0]);
@@ -241,9 +278,14 @@ int sc_main(int argc, char **argv) {
 	bus.isocks[11].bind(sys.tsock);
 	bus.isocks[12].bind(conv1_core0.tsock);
 	bus.isocks[13].bind(conv1_core1.tsock);
-
 	bus.isocks[14].bind(conv2_core0.tsock);
 	bus.isocks[15].bind(conv2_core1.tsock);
+	bus.isocks[16].bind(fc1_core0.tsock);
+	bus.isocks[17].bind(fc1_core1.tsock);
+	bus.isocks[18].bind(fc2_core0.tsock);
+	bus.isocks[19].bind(fc2_core1.tsock);
+	bus.isocks[20].bind(fc3_core0.tsock);
+	bus.isocks[21].bind(fc3_core1.tsock);
 
 	// connect interrupt signals/communication
 	plic.target_harts[0] = &core0;
