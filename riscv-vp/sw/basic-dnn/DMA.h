@@ -10,7 +10,12 @@ static char* const CONV1_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x7300000
 											reinterpret_cast<char* const>(0x73100000)};
 static char* const CONV2_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x73200000),
 											reinterpret_cast<char* const>(0x73300000)};
-
+static char* const FC1_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x73400000),
+											reinterpret_cast<char* const>(0x73500000)};
+static char* const FC2_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x73600000),
+											reinterpret_cast<char* const>(0x73700000)};
+static char* const FC3_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x73800000),
+											reinterpret_cast<char* const>(0x73900000)};
 // DMA 
 static volatile uint32_t * const DMA_SRC_ADDR  = (uint32_t * const)0x70000000;
 static volatile uint32_t * const DMA_DST_ADDR  = (uint32_t * const)0x70000004;

@@ -1,0 +1,6 @@
+riscv-vp/vp/build/
+riscv-vp/vp/dependencies/softfloat-dist/
+riscv-vp/vp/dependencies/systemc-2.3.3/
+riscv-vp/vp/dependencies/systemc-2.3.3.tar.gz
+riscv-vp/vp/dependencies/systemc-dist/
+
