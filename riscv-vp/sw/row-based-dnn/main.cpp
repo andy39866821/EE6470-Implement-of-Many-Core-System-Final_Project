@@ -6,7 +6,7 @@
 #include "parameters/DNN_parameters.h"
 
 // set this variable to "true" to used golden as input for each layer to calculate each layer latency.
-const bool use_golden_layer_input = true;
+const bool use_golden_layer_input = false;
 
 int conv1_result[6][14][14];
 int conv1_quantized_result[6][14][14];
@@ -263,12 +263,12 @@ int main(unsigned hart_id) {
         sem_init(&print_lock, 1);
     }
 
-    // //CONV1
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //CONV1
+    sem_wait(&print_lock);
+    printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_conv1(hart_id);
+    do_conv1(hart_id);
 
 
     //CONV2
@@ -278,29 +278,29 @@ int main(unsigned hart_id) {
 
     do_conv2(hart_id);
 
-    // //FC1
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //FC1
+    sem_wait(&print_lock);
+    printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_fc1(hart_id);
+    do_fc1(hart_id);
 
-    // //FC2
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_fc2 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //FC2
+    sem_wait(&print_lock);
+    printf("Core[%d] do_fc2 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_fc2(hart_id);
+    do_fc2(hart_id);
 
-    // //FC3
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //FC3
+    sem_wait(&print_lock);
+    printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_fc3(hart_id);
+    do_fc3(hart_id);
 
-    // //Print ans
-    // show_predict_result(hart_id);
+    //Print ans
+    show_predict_result(hart_id);
     return 0;
 }
 
