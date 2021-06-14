@@ -39,35 +39,77 @@ struct Convolution_2 : public sc_module {
     }
 
     void MAC(){
-        sc_int<32> source, weight, acc, max_vaule;
-        
+        sc_int<32> source, weight, acc, max_value;
+            
+        sc_int<32> input_buffer[6][5][14];
+        sc_int<32> weight_buffer[6][5][5];
+        sc_int<32> activation_buffer[2][10];
+
+        bool even_row;
+
         while(true) { // m loop
-            max_vaule = 0;
-            for(int i = 0 ; i < 2 ; i++){
-                for(int j = 0 ; j < 2 ; j++){
+           
+            for (int c = 0; c != C; c++) {// read 3D weight
+                for(int r = 0 ; r < R ; r++){
+                    for(int s = 0 ; s < S ; s++){
+                        weight_buffer[c][r][s] = i_weight.read();
+                    }
+                }
+            }
+           
+            for(int i = 0 ; i < R-1 ; i++) {// read inital 4-row input
+                for(int c = 0;  c != C ; c++) {
+                    for(int q = 0;  q != 14 ; q ++) {
+                        input_buffer[c][i][q] = i_source.read(); 
+                    }
+                }
+            }
+
+
+            for(int p = 4 ; p<14 ; p++) {
+
+                for(int c = 0;  c != C ; c++) {
+                    for(int q = 0;  q != 14 ; q ++) {
+                        input_buffer[c][4][q] = i_source.read(); 
+                    }
+                }
+                for(int index = 0 ; index < 10 ; index++) {
                     acc = 0;
-                    for(int c = 0 ; c < C ; c++){
-                        for(int r = 0 ; r < R ; r++){
-                            for(int s = 0 ; s < S ; s++){
-                            
-                                source = i_source.read();
-                                weight = i_weight.read();
-                                //cout << "Get: " << c << "," << r << "," << s << " : " 
-                                //    << source << " " << weight << endl;
-                                acc +=  source * weight;
+                    for(int c = 0 ; c != C ; c++){
+                        for(int r = 0 ; r != R ; r++){
+                            for(int s = 0 ; s != S ; s++){
+                                acc += weight_buffer[c][r][s] *  input_buffer[c][r][index + s];
                             }
                         }
                     }
-                    max_vaule = (max_vaule > acc ? max_vaule : acc);
+                    activation_buffer[even_row][index] = acc;
                 }
+                for(int c = 0 ; c != C ; c++){
+                    for(int i = 0 ; i < R-1 ; i++) {// shift 4-upper-row input
+                        for(int index = 0 ; index < 14 ; index++){
+                            input_buffer[c][i][index] = input_buffer[c][i+1][index];
+                        }
+                    }
+                }
+
+                if(even_row == true){
+                    for(int index = 0 ; index < 5 ; index++){
+                        max_value = 0;
+                        for(int i = 0; i < 2 ; i++){
+                            for(int j = 0 ; j < 2 ; j++){
+                                max_value = (max_value > activation_buffer[i][index*2+j] ? max_value : activation_buffer[i][index*2+j]);
+                            }
+                        }
+                        o_result.write(max_value);
+                        //cout << "conv write result: " << max_value << endl;
+                        
+                    }
+                }
+                even_row = !even_row;
             }
-            
-            o_result.write(max_vaule);
-            //cout << "Send data: " << acc << endl;
-            
         }
-        
     }
+
     void blocking_transport(tlm::tlm_generic_payload &payload, sc_core::sc_time &delay) {
         wait(delay);
         sc_dt::uint64 addr = payload.get_address();

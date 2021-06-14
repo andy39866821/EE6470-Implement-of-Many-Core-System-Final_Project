@@ -112,7 +112,6 @@ void do_conv2(unsigned hart_id){
                     sem_post(&print_lock);
                     pass = false;
                 }
-                conv2_quantized_result[m][p_mp][q_mp] = conv2_result[m][p_mp][q_mp] / conv2_output_scale;
                 conv2_quantized_result_unfolded[m*5*5 + p_mp*5 + q_mp] = conv2_result[m][p_mp][q_mp] / conv2_output_scale;
 
             }

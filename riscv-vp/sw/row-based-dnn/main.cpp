@@ -22,46 +22,46 @@ int fc3_quantized_result[10];
 
 void do_conv1(unsigned hart_id){
     bool pass = true;
-    int m = 6;
-    int start = (hart_id == 0 ? 0 : m/2);
-    int end = (hart_id == 0 ? m/2 : m);
-    //conv1_start_time = sc_time_stamp();
+    int M = 6;
+    int start = (hart_id == 0 ? 0 : M/2);
+    int end = (hart_id == 0 ? M/2 : M);
+    
     for (int m = start; m != end; m++) {
-        for (int p_mp = 0; p_mp != 14; p_mp++) {
-            for(int q_mp = 0; q_mp != 14 ; q_mp ++) {
-                for(int i = 0 ; i < 2 ; i++){
-                    for (int j = 0 ; j < 2 ; j++){
-                        int p = p_mp * 2 + i;
-                        int q = q_mp * 2 + j;
-                        for (int c = 0; c != 3; c++) {
-                            for (int r = 0; r != 5; r++) {
-                                for(int s = 0; s != 5 ; s++) {
-                                    //printf("Send %d %d %d\n", c, r, s);
-                                    write_data_to_ACC(CONV1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, input_quantized_1[c][p + r][q + s]);
-                                    write_data_to_ACC(CONV1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, conv1_weights[m][c][r][s]);
+        for (int c = 0; c != 3; c++) {
+            for (int r = 0; r != 5; r++) {
+                for(int s = 0; s != 5 ; s++) {
+                     
+                    write_data_to_ACC(CONV1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, conv1_weights[m][c][r][s]);
+                }
+            }
+        }
 
-                                }
-                            }
-                        }
-
+        for (int p = 0; p != 32; p++) {
+            for(int c = 0 ; c != 3; c++) {
+                for(int q = 0;  q != 32 ; q ++) {
+                    write_data_to_ACC(CONV1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, input_quantized_1[c][p][q]);
+                    //cout << "feed data: " << input_quantized[c][p][q] << endl;
+                }
+            }
+            if(p % 2 == 1 && p >= 5){
+                for(int q = 0 ; q < 14 ; q++){
+                    int P = (p-5)/2;
+                    conv1_result[m][P][q] = read_data_from_ACC(CONV1_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
+                    if(conv1_result[m][P][q] != conv1_max_pool_1[m][P][q]){
+                        sem_wait(&print_lock);
+                        printf("[ERROR] %d %d: %d\n", P, q, conv1_result[m][P][q]);
+                        printf("    Correct should be: %d\n", conv1_max_pool_1[m][P][q]);
+                        sem_post(&print_lock);
+                        pass = false;
                     }
+                    conv1_quantized_result[m][P][q] = conv1_result[m][P][q] / conv1_output_scale;
+                
                 }
-                conv1_result[m][p_mp][q_mp] = read_data_from_ACC(CONV1_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
-               // cout << "Get data: " << result << endl;
-                if(conv1_result[m][p_mp][q_mp] != conv1_max_pool_1[m][p_mp][q_mp]){
-                    sem_wait(&print_lock);
-                    printf("[ERROR] %d %d: %d\n", p_mp, q_mp, conv1_result[m][p_mp][q_mp]);
-                    printf("    Correct should be: %d\n", conv1_max_pool_1[m][p_mp][q_mp]);
-                    sem_post(&print_lock);
-                    pass = false;
-                }
-                conv1_quantized_result[m][p_mp][q_mp] = conv1_result[m][p_mp][q_mp] / conv1_output_scale;
-
+                             
+                 
             }
         }
     }
-
-    //cout << "   Conv1 activation simulated time: " << sc_time_stamp() - conv1_start_time << endl;
 
     sem_wait(&print_lock);
     if(pass == true){
@@ -75,46 +75,46 @@ void do_conv1(unsigned hart_id){
 
 void do_conv2(unsigned hart_id){
     bool pass = true;
-    int m = 16;
-    int start = (hart_id == 0 ? 0 : m/2);
-    int end = (hart_id == 0 ? m/2 : m);
-    int cnt = 0;
-    //conv1_start_time = sc_time_stamp();
+    int M = 16;
+    int start = (hart_id == 0 ? 0 : M/2);
+    int end = (hart_id == 0 ? M/2 : M);
+    
     for (int m = start; m != end; m++) {
-        for (int p_mp = 0; p_mp != 5; p_mp++) {
-            for(int q_mp = 0; q_mp != 5 ; q_mp ++) {
-                for(int i = 0 ; i < 2 ; i++){
-                    for (int j = 0 ; j < 2 ; j++){
-                        int p = p_mp * 2 + i;
-                        int q = q_mp * 2 + j;
-                        for (int c = 0; c != 6; c++) {
-                            for (int r = 0; r != 5; r++) {
-                                for(int s = 0; s != 5 ; s++) {
-                                    //printf("Send %d %d %d\n", c, r, s);
-                                    if(use_golden_layer_input == true)
-                                        write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv1_quantized_result_1[c][p + r][q + s]);
-                                    else
-                                        write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv1_quantized_result[c][p + r][q + s]);
-                                    write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, conv2_weights[m][c][r][s]);
+        for (int c = 0; c != 6; c++) {
+            for (int r = 0; r != 5; r++) {
+                for(int s = 0; s != 5 ; s++) {
+                     
+                    write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, conv2_weights[m][c][r][s]);
+                }
+            }
+        }
 
-                                }
-                            }
-                        }
-
+        for (int p = 0; p != 14; p++) {
+            for(int c = 0 ; c != 6; c++) {
+                for(int q = 0;  q != 14 ; q ++) {
+                    if(use_golden_layer_input)
+                        write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv1_quantized_result_1[c][p][q]);
+                    else
+                        write_data_to_ACC(CONV2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv1_quantized_result[c][p][q]);
+                    //cout << "feed data: " << input_quantized[c][p][q] << endl;
+                }
+            }
+            if(p % 2 == 1 && p >= 5){
+                for(int q = 0 ; q < 5 ; q++){
+                    int P = (p-5)/2;
+                    conv2_result[m][P][q] = read_data_from_ACC(CONV2_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
+                    if(conv2_result[m][P][q] != conv2_max_pool_1[m][P][q]){
+                        sem_wait(&print_lock);
+                        printf("[ERROR] %d %d: %d\n", P, q, conv2_result[m][P][q]);
+                        printf("    Correct should be: %d\n", conv2_max_pool_1[m][P][q]);
+                        sem_post(&print_lock);
+                        pass = false;
                     }
-                }
-                conv2_result[m][p_mp][q_mp] = read_data_from_ACC(CONV2_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
-               // cout << "Get data: " << result << endl;
-                if(conv2_result[m][p_mp][q_mp] != conv2_max_pool_1[m][p_mp][q_mp]){
-                    sem_wait(&print_lock);
-                    printf("[ERROR] %d %d: %d\n", p_mp, q_mp, conv1_result[m][p_mp][q_mp]);
-                    printf("    Correct should be: %d\n", conv1_max_pool_1[m][p_mp][q_mp]);
-                    sem_post(&print_lock);
-                    pass = false;
-                }
-                conv2_quantized_result[m][p_mp][q_mp] = conv2_result[m][p_mp][q_mp] / conv2_output_scale;
-                conv2_quantized_result_unfolded[m*5*5 + p_mp*5 + q_mp] = conv2_result[m][p_mp][q_mp] / conv2_output_scale;
+                    conv2_quantized_result_unfolded[m*5*5 + P*5 + q] = conv2_result[m][P][q] / conv2_output_scale;
 
+                }
+                             
+                 
             }
         }
     }
@@ -263,12 +263,12 @@ int main(unsigned hart_id) {
         sem_init(&print_lock, 1);
     }
 
-    //CONV1
-    sem_wait(&print_lock);
-    printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
-    sem_post(&print_lock);
+    // //CONV1
+    // sem_wait(&print_lock);
+    // printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
+    // sem_post(&print_lock);
 
-    do_conv1(hart_id);
+    // do_conv1(hart_id);
 
 
     //CONV2
@@ -278,29 +278,29 @@ int main(unsigned hart_id) {
 
     do_conv2(hart_id);
 
-    //FC1
-    sem_wait(&print_lock);
-    printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
-    sem_post(&print_lock);
+    // //FC1
+    // sem_wait(&print_lock);
+    // printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
+    // sem_post(&print_lock);
 
-    do_fc1(hart_id);
+    // do_fc1(hart_id);
 
-    //FC2
-    sem_wait(&print_lock);
-    printf("Core[%d] do_fc2 start\n", (hart_id == 0 ? 0 : 1));
-    sem_post(&print_lock);
+    // //FC2
+    // sem_wait(&print_lock);
+    // printf("Core[%d] do_fc2 start\n", (hart_id == 0 ? 0 : 1));
+    // sem_post(&print_lock);
 
-    do_fc2(hart_id);
+    // do_fc2(hart_id);
 
-    //FC3
-    sem_wait(&print_lock);
-    printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
-    sem_post(&print_lock);
+    // //FC3
+    // sem_wait(&print_lock);
+    // printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
+    // sem_post(&print_lock);
 
-    do_fc3(hart_id);
+    // do_fc3(hart_id);
 
-    //Print ans
-    show_predict_result(hart_id);
+    // //Print ans
+    // show_predict_result(hart_id);
     return 0;
 }
 
