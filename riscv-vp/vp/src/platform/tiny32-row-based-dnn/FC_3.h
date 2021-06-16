@@ -18,6 +18,8 @@ struct FC_3: public sc_module {
 	sc_fifo< sc_dt::sc_int<32> > i_source;
 	sc_fifo< sc_dt::sc_int<32> > i_weight;
     sc_fifo< sc_dt::sc_int<32> > i_bias;
+    sc_fifo< sc_dt::sc_int<32> > i_start;
+    sc_fifo< sc_dt::sc_int<32> > i_end;
 	sc_fifo< sc_dt::sc_int<32> > o_result;
     
     SC_HAS_PROCESS(FC_3);
@@ -37,25 +39,28 @@ struct FC_3: public sc_module {
     ~FC_3(){}
 
     void Fully_Connect(){
-        sc_int<32> source, weight, acc, bias;
+        sc_int<32> source, weight, bias;
+        sc_int<32> start, end;
+        sc_int<32> acc[10];
         sc_int<32> zero = 0;
 
         while(true) {
-            acc = 0;
+            for (int i=0; i<M; i++) acc[i] = 0;
+            start = i_start.read();
+            end = i_end.read();
             
-            for(int i = 0 ; i < H ; i++){		
-                source = i_source.read();
-                weight = i_weight.read();
-
-                acc += source * weight;
+            for(int i = start ; i < end ; i++){		
+                for(int j = 0 ; j < H ; j++){
+                    source = i_source.read();
+                    weight = i_weight.read();
+                    acc[i] += source * weight;
+                }
             }
-            bias = i_bias.read();
-
-            acc += bias;
-
-            o_result.write(acc);
-                
-            
+            for(int j = start ; j < end ; j++){
+                bias = i_bias.read();
+                acc[j] += bias;
+                o_result.write(acc[j]);
+            }
         }
     }
 
@@ -66,7 +71,7 @@ struct FC_3: public sc_module {
         //addr = addr - base_offset;
         unsigned char *mask_ptr = payload.get_byte_enable_ptr();
         unsigned char *data_ptr = payload.get_data_ptr();
-        sc_int<32> result, source, weight, bias;
+        sc_int<32> result, source, weight, bias, start, end;
         switch (payload.get_command()) {
             case tlm::TLM_READ_COMMAND:
                 switch (addr) {
@@ -109,6 +114,20 @@ struct FC_3: public sc_module {
                         bias.range(23,16) = data_ptr[2];
                         bias.range(31,24) = data_ptr[3];
                         i_bias.write(bias);
+                        break;
+                    case START_ADDR:
+                        start.range(7,0) = data_ptr[0];
+                        start.range(15,8) = data_ptr[1];
+                        start.range(23,16) = data_ptr[2];
+                        start.range(31,24) = data_ptr[3];
+                        i_start.write(start);
+                        break;
+                    case END_ADDR:
+                        end.range(7,0) = data_ptr[0];
+                        end.range(15,8) = data_ptr[1];
+                        end.range(23,16) = data_ptr[2];
+                        end.range(31,24) = data_ptr[3];
+                        i_end.write(end);
                         break;
                     default:
                         std::cerr << "Error! SobelFilter::blocking_transport: address 0x"
