@@ -5,6 +5,8 @@
 #define SOURCE_ADDR 0x00000004
 #define RESULT_ADDR 0x00000008
 #define BIAS_ADDR 0x0000000C
+#define START_ADDR 0x0000010
+#define END_ADDR 0x0000014
 
 static char* const CONV1_BASE_ADDR[2] = {reinterpret_cast<char* const>(0x73000000),
 											reinterpret_cast<char* const>(0x73100000)};
