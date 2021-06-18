@@ -6,7 +6,7 @@
 #include "parameters/DNN_parameters.h"
 
 // set this variable to "true" to used golden as input for each layer to calculate each layer latency.
-const bool use_golden_layer_input = true;
+const bool use_golden_layer_input = false;
 
 int conv1_result[6][14][14];
 int conv1_quantized_result[6][14][14];
@@ -135,23 +135,19 @@ void do_fc1(unsigned hart_id){
     int start = (hart_id == 0 ? 0 : M/2);
     int end = (hart_id == 0 ? M/2 : M);
 
-    /*for (int h = 0; h != 400; h++) { 
-        write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv2_quantized_result_unfolded[h]);
-        for (int m = start; m != end; m++) {
-            write_data_to_ACC(FC1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc1_weights[m][h]);
-        }                            
-    }*/
-    write_data_to_ACC(FC1_BASE_ADDR[hart_id] + START_ADDR, 4, start);
-    write_data_to_ACC(FC1_BASE_ADDR[hart_id] + END_ADDR, 4, end);
-
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 400; h++) {
-            write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv2_quantized_result_unfolded[h]);
-            write_data_to_ACC(FC1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc1_weights[m][h]);
-        }                            
-    }
-
     for (int m = start; m != end; m++) {
+        for (int h = 0; h != 400; h++) {
+            if(use_golden_layer_input == true)
+                write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_input_1[h]);
+            else{
+                /*sem_wait(&print_lock);
+                printf ("FC1_BASE_ADDR[hart_id] = %d conv2_quantized_result_unfolded[%d] = %d\n",FC1_BASE_ADDR[hart_id],h,conv2_quantized_result_unfolded[h]);
+                sem_post(&print_lock);*/
+                write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv2_quantized_result_unfolded[h]);
+            }
+            write_data_to_ACC(FC1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc1_weights[m][h]);
+        }
+
         fc1_result[m] = read_data_from_ACC(FC1_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
         if(fc1_result[m] != fc1_activation_1[m]){
             sem_wait(&print_lock);
@@ -178,17 +174,15 @@ void do_fc2(unsigned hart_id){
     int start = (hart_id == 0 ? 0 : M/2);
     int end = (hart_id == 0 ? M/2 : M);
 
-    write_data_to_ACC(FC2_BASE_ADDR[hart_id] + START_ADDR, 4, start);
-    write_data_to_ACC(FC2_BASE_ADDR[hart_id] + END_ADDR, 4, end);
-
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 120; h++) {
-            write_data_to_ACC(FC2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_quantized_result[h]);
-            write_data_to_ACC(FC2_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc2_weights[m][h]);
-        }                            
-    }
-
     for (int m = start; m != end; m++) {
+        for (int h = 0; h != 120; h++) {
+            if(use_golden_layer_input == true)
+                write_data_to_ACC(FC2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_quantized_result_1[h]);
+            else
+                write_data_to_ACC(FC2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_quantized_result[h]);
+            write_data_to_ACC(FC2_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc2_weights[m][h]);
+        }
+
         fc2_result[m] = read_data_from_ACC(FC2_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
         if(fc2_result[m] != fc2_activation_1[m]){
             sem_wait(&print_lock);
@@ -215,23 +209,21 @@ void do_fc3(unsigned hart_id){
     int start = (hart_id == 0 ? 0 : M/2);
     int end = (hart_id == 0 ? M/2 : M);
 
-    write_data_to_ACC(FC3_BASE_ADDR[hart_id] + START_ADDR, 4, start);
-    write_data_to_ACC(FC3_BASE_ADDR[hart_id] + END_ADDR, 4, end);
-
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 84; h++) {
-            write_data_to_ACC(FC3_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc2_quantized_result[h]);
-            write_data_to_ACC(FC3_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc3_weights[m][h]);
-        }                            
-    }
-
     for (int m = start; m != end; m++) {
+        for (int h = 0; h != 84; h++) {
+            if(use_golden_layer_input == true)
+                write_data_to_ACC(FC3_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc2_quantized_result_1[h]);
+            else
+                write_data_to_ACC(FC3_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc2_quantized_result[h]);
+            write_data_to_ACC(FC3_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc3_weights[m][h]);
+        }
         write_data_to_ACC(FC3_BASE_ADDR[hart_id] + BIAS_ADDR, 4, fc3_bias[m]);
+
         fc3_result[m] = read_data_from_ACC(FC3_BASE_ADDR[hart_id] + RESULT_ADDR, 4);
         if(fc3_result[m] != fc3_bias_addition_1[m]){
             sem_wait(&print_lock);
             printf("[ERROR] %d: %d\n", m, fc3_result[m]);
-            printf("    Correct should be: %d\n", fc3_activation_1[m]);
+            printf("    Correct should be: %d\n", fc3_bias_addition_1[m]);
             sem_post(&print_lock);
             pass = false;
         }
@@ -271,27 +263,27 @@ int main(unsigned hart_id) {
         sem_init(&print_lock, 1);
     }
 
-    // //CONV1
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //CONV1
+    sem_wait(&print_lock);
+    printf("Core[%d] do_conv1 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_conv1(hart_id);
+    do_conv1(hart_id);
 
 
-    // //CONV2
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_conv2 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //CONV2
+    sem_wait(&print_lock);
+    printf("Core[%d] do_conv2 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_conv2(hart_id);
+    do_conv2(hart_id);
 
-    // //FC1
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //FC1
+    sem_wait(&print_lock);
+    printf("Core[%d] do_fc1 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_fc1(hart_id);
+    do_fc1(hart_id);
 
     //FC2
     sem_wait(&print_lock);
@@ -300,15 +292,15 @@ int main(unsigned hart_id) {
 
     do_fc2(hart_id);
 
-    // //FC3
-    // sem_wait(&print_lock);
-    // printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
-    // sem_post(&print_lock);
+    //FC3
+    sem_wait(&print_lock);
+    printf("Core[%d] do_fc3 start\n", (hart_id == 0 ? 0 : 1));
+    sem_post(&print_lock);
 
-    // do_fc3(hart_id);
+    do_fc3(hart_id);
 
-    // //Print ans
-    // show_predict_result(hart_id);
+    //Print ans
+    show_predict_result(hart_id);
     return 0;
 }
 
