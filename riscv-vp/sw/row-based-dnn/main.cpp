@@ -144,9 +144,9 @@ void do_fc1(unsigned hart_id){
     write_data_to_ACC(FC1_BASE_ADDR[hart_id] + START_ADDR, 4, start);
     write_data_to_ACC(FC1_BASE_ADDR[hart_id] + END_ADDR, 4, end);
 
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 400; h++) {
-            write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv2_quantized_result_unfolded[h]);
+    for (int h = 0; h != 400; h++) {
+        write_data_to_ACC(FC1_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, conv2_quantized_result_unfolded[h]); 
+        for (int m = start; m != end; m++) {
             write_data_to_ACC(FC1_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc1_weights[m][h]);
         }                            
     }
@@ -181,9 +181,9 @@ void do_fc2(unsigned hart_id){
     write_data_to_ACC(FC2_BASE_ADDR[hart_id] + START_ADDR, 4, start);
     write_data_to_ACC(FC2_BASE_ADDR[hart_id] + END_ADDR, 4, end);
 
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 120; h++) {
-            write_data_to_ACC(FC2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_quantized_result[h]);
+    for (int h = 0; h != 120; h++) { 
+        write_data_to_ACC(FC2_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc1_quantized_result[h]);
+        for (int m = start; m != end; m++) {
             write_data_to_ACC(FC2_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc2_weights[m][h]);
         }                            
     }
@@ -218,9 +218,9 @@ void do_fc3(unsigned hart_id){
     write_data_to_ACC(FC3_BASE_ADDR[hart_id] + START_ADDR, 4, start);
     write_data_to_ACC(FC3_BASE_ADDR[hart_id] + END_ADDR, 4, end);
 
-    for (int m = start; m != end; m++) { 
-        for (int h = 0; h != 84; h++) {
-            write_data_to_ACC(FC3_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc2_quantized_result[h]);
+    for (int h = 0; h != 84; h++) { 
+        write_data_to_ACC(FC3_BASE_ADDR[hart_id] + SOURCE_ADDR, 4, fc2_quantized_result[h]);
+        for (int m = start; m != end; m++) {
             write_data_to_ACC(FC3_BASE_ADDR[hart_id] + WEIGHT_ADDR, 4, fc3_weights[m][h]);
         }                            
     }
