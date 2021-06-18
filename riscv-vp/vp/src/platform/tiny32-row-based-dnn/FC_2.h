@@ -48,11 +48,11 @@ struct FC_2: public sc_module {
             start = i_start.read();
             end = i_end.read();
             
-            for(int i = start ; i < end ; i++){		
-                for(int j = 0 ; j < H ; j++){
-                    source = i_source.read();
+            for(int i = 0 ; i < H ; i++){	
+                source = i_source.read();	
+                for(int j = start ; j < end ; j++){
                     weight = i_weight.read();
-                    acc[i] += source * weight;
+                    acc[j] += source * weight;
                 }
             }
             for(int j = start ; j < end ; j++){
