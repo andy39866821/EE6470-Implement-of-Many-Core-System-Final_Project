@@ -15,11 +15,11 @@ struct FC_2: public sc_module {
 
     tlm_utils::simple_target_socket<FC_2> tsock;
     
-	sc_fifo< sc_dt::sc_int<32> > i_source;
-	sc_fifo< sc_dt::sc_int<32> > i_weight;
-    sc_fifo< sc_dt::sc_int<32> > i_start;
-    sc_fifo< sc_dt::sc_int<32> > i_end;
-	sc_fifo< sc_dt::sc_int<32> > o_result;
+	sc_fifo< sc_dt::sc_int<8> > i_source;
+	sc_fifo< sc_dt::sc_int<8> > i_weight;
+    sc_fifo< sc_dt::sc_int<8> > i_start;
+    sc_fifo< sc_dt::sc_int<8> > i_end;
+	sc_fifo< sc_dt::sc_int<24> > o_result;
     
     SC_HAS_PROCESS(FC_2);
 
@@ -38,10 +38,10 @@ struct FC_2: public sc_module {
     ~FC_2(){}
 
     void Fully_Connect(){
-        sc_int<32> source, weight;
-        sc_int<32> start, end;
-        sc_int<32> acc[84];
-        sc_int<32> zero = 0;
+        sc_int<8> source, weight;
+        sc_int<8> start, end;
+        sc_int<24> acc[84];
+        sc_int<24> zero = 0;
 
         while(true) {
             for (int i=0; i<M; i++) acc[i] = 0;
@@ -71,7 +71,8 @@ struct FC_2: public sc_module {
         //addr = addr - base_offset;
         unsigned char *mask_ptr = payload.get_byte_enable_ptr();
         unsigned char *data_ptr = payload.get_data_ptr();
-        sc_int<32> result, source, weight, start, end;
+        sc_int<24> result;
+        sc_int<8> source, weight, start, end;
         switch (payload.get_command()) {
             case tlm::TLM_READ_COMMAND:
                 switch (addr) {
@@ -96,30 +97,30 @@ struct FC_2: public sc_module {
                 switch (addr) {
                     case SOURCE_ADDR:
                         source.range(7,0) = data_ptr[0];
-                        source.range(15,8) = data_ptr[1];
-                        source.range(23,16) = data_ptr[2];
-                        source.range(31,24) = data_ptr[3];
+                        // source.range(15,8) = data_ptr[1];
+                        // source.range(23,16) = data_ptr[2];
+                        // source.range(31,24) = data_ptr[3];
                         i_source.write(source);
                         break;
                     case WEIGHT_ADDR:
                         weight.range(7,0) = data_ptr[0];
-                        weight.range(15,8) = data_ptr[1];
-                        weight.range(23,16) = data_ptr[2];
-                        weight.range(31,24) = data_ptr[3];
+                        // weight.range(15,8) = data_ptr[1];
+                        // weight.range(23,16) = data_ptr[2];
+                        // weight.range(31,24) = data_ptr[3];
                         i_weight.write(weight);
                         break;
                     case START_ADDR:
                         start.range(7,0) = data_ptr[0];
-                        start.range(15,8) = data_ptr[1];
-                        start.range(23,16) = data_ptr[2];
-                        start.range(31,24) = data_ptr[3];
+                        // start.range(15,8) = data_ptr[1];
+                        // start.range(23,16) = data_ptr[2];
+                        // start.range(31,24) = data_ptr[3];
                         i_start.write(start);
                         break;
                     case END_ADDR:
                         end.range(7,0) = data_ptr[0];
-                        end.range(15,8) = data_ptr[1];
-                        end.range(23,16) = data_ptr[2];
-                        end.range(31,24) = data_ptr[3];
+                        // end.range(15,8) = data_ptr[1];
+                        // end.range(23,16) = data_ptr[2];
+                        // end.range(31,24) = data_ptr[3];
                         i_end.write(end);
                         break;
                     default:

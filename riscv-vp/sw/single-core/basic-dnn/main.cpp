@@ -148,10 +148,10 @@ void do_fc1(){
         fc1_quantized_result[m] = fc1_result[m] / fc1_output_scale;
     }
     if(pass == true){
-        printf("=====> Core[%d] FC1 activation PASS\n");
+        printf("=====> Core FC1 activation PASS\n");
     }
     else{
-        printf("=====> Core[%d]  FC1 activation FAILED\n");
+        printf("=====> Core FC1 activation FAILED\n");
     }
 }
 

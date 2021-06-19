@@ -15,10 +15,10 @@ struct FC_3: public sc_module {
 
     tlm_utils::simple_target_socket<FC_3> tsock;
     
-	sc_fifo< sc_dt::sc_int<32> > i_source;
-	sc_fifo< sc_dt::sc_int<32> > i_weight;
-    sc_fifo< sc_dt::sc_int<32> > i_bias;
-	sc_fifo< sc_dt::sc_int<32> > o_result;
+	sc_fifo< sc_dt::sc_int<8> > i_source;
+	sc_fifo< sc_dt::sc_int<8> > i_weight;
+    sc_fifo< sc_dt::sc_int<8> > i_bias;
+	sc_fifo< sc_dt::sc_int<24> > o_result;
     
     SC_HAS_PROCESS(FC_3);
 
@@ -37,8 +37,8 @@ struct FC_3: public sc_module {
     ~FC_3(){}
 
     void Fully_Connect(){
-        sc_int<32> source, weight, acc, bias;
-        sc_int<32> zero = 0;
+        sc_int<8> source, weight, bias;
+        sc_int<24> zero = 0, acc;
 
         while(true) {
             acc = 0;
@@ -66,7 +66,8 @@ struct FC_3: public sc_module {
         //addr = addr - base_offset;
         unsigned char *mask_ptr = payload.get_byte_enable_ptr();
         unsigned char *data_ptr = payload.get_data_ptr();
-        sc_int<32> result, source, weight, bias;
+        sc_int<24> result;
+        sc_int<8> source, weight, bias;
         switch (payload.get_command()) {
             case tlm::TLM_READ_COMMAND:
                 switch (addr) {
@@ -91,23 +92,23 @@ struct FC_3: public sc_module {
                 switch (addr) {
                     case SOURCE_ADDR:
                         source.range(7,0) = data_ptr[0];
-                        source.range(15,8) = data_ptr[1];
-                        source.range(23,16) = data_ptr[2];
-                        source.range(31,24) = data_ptr[3];
+                        // source.range(15,8) = data_ptr[1];
+                        // source.range(23,16) = data_ptr[2];
+                        // source.range(31,24) = data_ptr[3];
                         i_source.write(source);
                         break;
                     case WEIGHT_ADDR:
                         weight.range(7,0) = data_ptr[0];
-                        weight.range(15,8) = data_ptr[1];
-                        weight.range(23,16) = data_ptr[2];
-                        weight.range(31,24) = data_ptr[3];
+                        // weight.range(15,8) = data_ptr[1];
+                        // weight.range(23,16) = data_ptr[2];
+                        // weight.range(31,24) = data_ptr[3];
                         i_weight.write(weight);
                         break;
                     case BIAS_ADDR:
                         bias.range(7,0) = data_ptr[0];
-                        bias.range(15,8) = data_ptr[1];
-                        bias.range(23,16) = data_ptr[2];
-                        bias.range(31,24) = data_ptr[3];
+                        // bias.range(15,8) = data_ptr[1];
+                        // bias.range(23,16) = data_ptr[2];
+                        // bias.range(31,24) = data_ptr[3];
                         i_bias.write(bias);
                         break;
                     default:

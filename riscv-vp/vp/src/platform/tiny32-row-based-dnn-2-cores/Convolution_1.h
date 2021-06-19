@@ -16,9 +16,9 @@ struct Convolution_1 : public sc_module {
     tlm_utils::simple_target_socket<Convolution_1> tsock;
 
     int C, R, S;
-	sc_fifo< sc_dt::sc_int<32> > i_source;
-	sc_fifo< sc_dt::sc_int<32> > i_weight;
-	sc_fifo< sc_dt::sc_int<32> > o_result;
+	sc_fifo< sc_dt::sc_int<8> > i_source;
+	sc_fifo< sc_dt::sc_int<8> > i_weight;
+	sc_fifo< sc_dt::sc_int<24> > o_result;
 
     SC_HAS_PROCESS(Convolution_1);
 
@@ -39,11 +39,12 @@ struct Convolution_1 : public sc_module {
     }
 
     void MAC(){
-        sc_int<32> source, weight, acc, max_value;
+        sc_int<8> source, weight;
+        sc_int<24> acc, max_value;
             
-        sc_int<32> input_buffer[3][5][32];
-        sc_int<32> weight_buffer[3][5][5];
-        sc_int<32> activation_buffer[2][28];
+        sc_int<8> input_buffer[3][5][32];
+        sc_int<8> weight_buffer[3][5][5];
+        sc_int<24> activation_buffer[2][28];
 
         bool even_row;
 
@@ -115,7 +116,8 @@ struct Convolution_1 : public sc_module {
         //addr = addr - base_offset;
         unsigned char *mask_ptr = payload.get_byte_enable_ptr();
         unsigned char *data_ptr = payload.get_data_ptr();
-        sc_int<32> result, source, weight;
+        sc_int<24> result;
+        sc_int<8> source, weight;
         switch (payload.get_command()) {
             case tlm::TLM_READ_COMMAND:
                 //cout << "TLM READ: " << addr << endl;
@@ -145,17 +147,17 @@ struct Convolution_1 : public sc_module {
                 switch (addr) {
                     case SOURCE_ADDR:
                         source.range(7,0) = data_ptr[0];
-                        source.range(15,8) = data_ptr[1];
-                        source.range(23,16) = data_ptr[2];
-                        source.range(31,24) = data_ptr[3];
+                        //source.range(15,8) = data_ptr[1];
+                        //source.range(23,16) = data_ptr[2];
+                        //source.range(31,24) = data_ptr[3];
                         //cout << "conv1 socket get source: " << source << endl;
                         i_source.write(source);
                         break;
                     case WEIGHT_ADDR:
                         weight.range(7,0) = data_ptr[0];
-                        weight.range(15,8) = data_ptr[1];
-                        weight.range(23,16) = data_ptr[2];
-                        weight.range(31,24) = data_ptr[3];
+                        //weight.range(15,8) = data_ptr[1];
+                        //weight.range(23,16) = data_ptr[2];
+                        //weight.range(31,24) = data_ptr[3];
                         //cout << "conv1 socket get weight: " << weight << endl;
                         i_weight.write(weight);
                         break;

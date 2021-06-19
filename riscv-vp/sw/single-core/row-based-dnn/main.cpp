@@ -269,32 +269,32 @@ void show_predict_result(){
 }
 
 int main() {
-    // //CONV1
-    // printf("do_conv1 start\n");
-    // do_conv1();
+    //CONV1
+    printf("do_conv1 start\n");
+    do_conv1();
 
 
-    // //CONV2
-    // printf("do_conv2 start\n");
-    // do_conv2();
+    //CONV2
+    printf("do_conv2 start\n");
+    do_conv2();
 
-    // //FC1
-    // printf("do_fc1 start\n");
+    //FC1
+    printf("do_fc1 start\n");
 
-    // do_fc1();
+    do_fc1();
 
-    // //FC2
-    // printf("do_fc2 start\n");
+    //FC2
+    printf("do_fc2 start\n");
 
-    // do_fc2();
+    do_fc2();
 
     //FC3
     printf("do_fc3 start\n");
 
     do_fc3();
 
-    //Print ans
-    show_predict_result();
+    // //Print ans
+    // show_predict_result();
     return 0;
 }
 
